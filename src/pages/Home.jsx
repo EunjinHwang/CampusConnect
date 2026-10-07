@@ -72,7 +72,7 @@ export default function Home() {
               style={display}
             >
               {user
-                ? `Hi, ${profile?.name ?? "Student"}`
+                ? `Hi, ${profile?.full_name ?? "Student"}`
                 : "All campus activities in one place"}
             </h1>
             <p className="mt-5 max-w-md text-lg text-[#CDEBD8]">

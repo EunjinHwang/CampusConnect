@@ -73,7 +73,7 @@ export default function Events() {
               <p className="text-xs text-indigo-600">{e.category}</p>
               <h2 className="mt-1 font-semibold">{e.title}</h2>
               <p className="mt-1 text-sm text-slate-600">
-                {new Date(e.starts_at).toLocaleString("ko-KR", {
+                {new Date(e.starts_at).toLocaleString("en-US", {
                   dateStyle: "medium",
                   timeStyle: "short",
                 })}

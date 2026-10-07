@@ -21,7 +21,7 @@ export default function Signup() {
     if (error) return setError(error.message);
     // 이메일 확인을 켜둔 경우 세션이 없음
     if (!data.session)
-      return setError("가입 완료! 이메일로 온 확인 링크를 눌러주세요.");
+      return setError("Account created! Check your email for the confirmation link.");
     navigate("/");
   }
 
