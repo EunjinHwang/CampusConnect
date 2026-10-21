@@ -19,7 +19,7 @@ export default function Signup() {
     const { data, error } = await signUp(email, password, name);
     setBusy(false);
     if (error) return setError(error.message);
-    // 이메일 확인을 켜둔 경우 세션이 없음
+    // No session exists if email verification is enabled.
     if (!data.session)
       return setError("Account created! Check your email for the confirmation link.");
     navigate("/");
