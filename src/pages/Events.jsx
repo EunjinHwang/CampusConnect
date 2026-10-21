@@ -54,7 +54,7 @@ export default function Events() {
       if (!isSupabaseConfigured) {
         setEvents([]);
         setError(
-          "Connect Supabase by adding VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.",
+          "Connect Supabase by adding VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to your .env.local file.",
         );
         setLoading(false);
         return;
@@ -64,6 +64,9 @@ export default function Events() {
       let query = supabase
         .from("events")
         .select("*")
+        // Only published, upcoming events (organizers can otherwise see their own drafts).
+        .eq("status", "published")
+        .gte("starts_at", new Date().toISOString())
         .order("starts_at");
 
       // 2. Category Filter

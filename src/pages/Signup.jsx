@@ -21,7 +21,7 @@ export default function Signup() {
     if (error) return setError(error.message);
     // No session exists if email verification is enabled.
     if (!data.session)
-      return setError("Registration complete! Please click the confirmation link sent to your email.");
+      return setError("Account created! Check your email for the confirmation link.");
     navigate("/");
   }
 
