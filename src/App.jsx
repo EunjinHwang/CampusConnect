@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
 import Placeholder from "./pages/Placeholder";
 
 export default function App() {
@@ -20,7 +21,7 @@ export default function App() {
 
           <Route
             path="/events/:id"
-            element={<Placeholder title="Event Details" />}
+            element={<EventDetails />}
           />
           <Route path="/store" element={<Placeholder title="Store" />} />
           <Route path="/cart" element={<Placeholder title="Cart" />} />
