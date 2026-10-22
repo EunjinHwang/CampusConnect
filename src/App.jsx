@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Placeholder from "./pages/Placeholder";
+import EventManagement from "./pages/EventManagement";
 
 export default function App() {
   return (
@@ -37,7 +38,7 @@ export default function App() {
             path="/organizer"
             element={
               <ProtectedRoute roles={["organizer", "admin"]}>
-                <Placeholder title="Event Management" />
+                <EventManagement />
               </ProtectedRoute>
             }
           />
