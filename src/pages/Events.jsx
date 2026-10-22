@@ -1,22 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { fallbackImageFor } from "../lib/eventImages";
 
 const CATEGORIES = ["All", "Academic", "Clubs", "Sports", "Culture", "Career"];
-const CATEGORY_IMAGES = {
-  Academic:
-    "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=85",
-  Clubs:
-    "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=85",
-  Sports:
-    "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=85",
-  Culture:
-    "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=85",
-  Career:
-    "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=85",
-  default:
-    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=85",
-};
 
 function formatEventDate(value) {
   const date = new Date(value);
@@ -303,7 +290,7 @@ export default function Events() {
           <ul className="grid gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
             {visibleEvents.map((event) => {
               const date = formatEventDate(event.starts_at);
-              const fallbackImage = CATEGORY_IMAGES[event.category] ?? CATEGORY_IMAGES.default;
+              const fallbackImage = fallbackImageFor(event.category);
 
               return (
                 <li key={event.id} className="min-w-0">
@@ -317,7 +304,9 @@ export default function Events() {
                         alt={event.title ? `Cover for ${event.title}` : "Campus event"}
                         loading="lazy"
                         onError={(imageEvent) => {
-                          imageEvent.currentTarget.onerror = null;
+                          // Swap once; if the fallback fails too, stop retrying.
+                          if (imageEvent.currentTarget.dataset.fallback) return;
+                          imageEvent.currentTarget.dataset.fallback = "1";
                           imageEvent.currentTarget.src = fallbackImage;
                         }}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
