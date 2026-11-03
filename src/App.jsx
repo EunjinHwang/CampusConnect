@@ -10,6 +10,12 @@ import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Placeholder from "./pages/Placeholder";
 import EventManagement from "./pages/EventManagement";
+// Sprint 3: Attendance check-in page
+import Attendance from "./pages/Attendance";
+import Store from "./pages/Store";
+import ProductDetails from "./pages/ProductDetails";
+// Sprint 3: Shopping Cart page
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
@@ -30,15 +36,14 @@ export default function App() {
             element={<EventDetails />}
           />
 
-          <Route
-            path="/store"
-            element={<Placeholder title="Store" />}
-          />
+          {/* Sprint 3: Merchandise store */}
+<Route path="/store" element={<Store />} />
 
-          <Route
-            path="/cart"
-            element={<Placeholder title="Cart" />}
-          />
+{/* Sprint 3: Individual merchandise product details */}
+<Route path="/store/:id" element={<ProductDetails />} />
+
+        {/* Sprint 3: Shopping Cart */}
+<Route path="/cart" element={<Cart />} />
 
           <Route
             path="/my-events"
@@ -64,6 +69,16 @@ export default function App() {
   element={
     <ProtectedRoute roles={["organizer", "admin"]}>
       <EventManagement />
+    </ProtectedRoute>
+  }
+/>
+
+{/* Sprint 3: Attendance check-in for organizers and admins */}
+<Route
+  path="/organizer/attendance/:id"
+  element={
+    <ProtectedRoute roles={["organizer", "admin"]}>
+      <Attendance />
     </ProtectedRoute>
   }
 />
