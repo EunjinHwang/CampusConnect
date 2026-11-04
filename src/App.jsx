@@ -1,5 +1,7 @@
+
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer"; // Added: CampusConnect Footer
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -7,12 +9,22 @@ import Signup from "./pages/Signup";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Placeholder from "./pages/Placeholder";
+import EventManagement from "./pages/EventManagement";
+// Sprint 3: Attendance check-in page
+import Attendance from "./pages/Attendance";
+import Store from "./pages/Store";
+import ProductDetails from "./pages/ProductDetails";
+// Sprint 3: Shopping Cart page
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+      {/* CampusConnect navigation */}
       <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8">
+
+      {/* Main content expands to keep Footer at the bottom */}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -23,8 +35,16 @@ export default function App() {
             path="/events/:id"
             element={<EventDetails />}
           />
-          <Route path="/store" element={<Placeholder title="Store" />} />
-          <Route path="/cart" element={<Placeholder title="Cart" />} />
+
+          {/* Sprint 3: Merchandise store */}
+<Route path="/store" element={<Store />} />
+
+{/* Sprint 3: Individual merchandise product details */}
+<Route path="/store/:id" element={<ProductDetails />} />
+
+        {/* Sprint 3: Shopping Cart */}
+<Route path="/cart" element={<Cart />} />
+
           <Route
             path="/my-events"
             element={
@@ -33,14 +53,36 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/organizer"
             element={
               <ProtectedRoute roles={["organizer", "admin"]}>
-                <Placeholder title="Event Management" />
+                <EventManagement />
               </ProtectedRoute>
             }
           />
+
+          {/* Added: Edit an existing event */}
+<Route
+  path="/organizer/edit/:id"
+  element={
+    <ProtectedRoute roles={["organizer", "admin"]}>
+      <EventManagement />
+    </ProtectedRoute>
+  }
+/>
+
+{/* Sprint 3: Attendance check-in for organizers and admins */}
+<Route
+  path="/organizer/attendance/:id"
+  element={
+    <ProtectedRoute roles={["organizer", "admin"]}>
+      <Attendance />
+    </ProtectedRoute>
+  }
+/>
+
           <Route
             path="/admin"
             element={
@@ -51,6 +93,9 @@ export default function App() {
           />
         </Routes>
       </main>
+
+      {/* Added: Footer visible on every page */}
+      <Footer />
     </div>
   );
 }
