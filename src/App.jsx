@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer"; // Added: CampusConnect Footer
@@ -14,6 +13,8 @@ import EventManagement from "./pages/EventManagement";
 import Attendance from "./pages/Attendance";
 import Store from "./pages/Store";
 import ProductDetails from "./pages/ProductDetails";
+
+import MyEvents from "./pages/MyEvents";
 // Sprint 3: Shopping Cart page
 import Cart from "./pages/Cart";
 
@@ -31,25 +32,22 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/events" element={<Events />} />
 
-          <Route
-            path="/events/:id"
-            element={<EventDetails />}
-          />
+          <Route path="/events/:id" element={<EventDetails />} />
 
           {/* Sprint 3: Merchandise store */}
-<Route path="/store" element={<Store />} />
+          <Route path="/store" element={<Store />} />
 
-{/* Sprint 3: Individual merchandise product details */}
-<Route path="/store/:id" element={<ProductDetails />} />
+          {/* Sprint 3: Individual merchandise product details */}
+          <Route path="/store/:id" element={<ProductDetails />} />
 
-        {/* Sprint 3: Shopping Cart */}
-<Route path="/cart" element={<Cart />} />
+          {/* Sprint 3: Shopping Cart */}
+          <Route path="/cart" element={<Cart />} />
 
           <Route
             path="/my-events"
             element={
               <ProtectedRoute>
-                <Placeholder title="My Event" />
+                <MyEvents />
               </ProtectedRoute>
             }
           />
@@ -64,24 +62,24 @@ export default function App() {
           />
 
           {/* Added: Edit an existing event */}
-<Route
-  path="/organizer/edit/:id"
-  element={
-    <ProtectedRoute roles={["organizer", "admin"]}>
-      <EventManagement />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/organizer/edit/:id"
+            element={
+              <ProtectedRoute roles={["organizer", "admin"]}>
+                <EventManagement />
+              </ProtectedRoute>
+            }
+          />
 
-{/* Sprint 3: Attendance check-in for organizers and admins */}
-<Route
-  path="/organizer/attendance/:id"
-  element={
-    <ProtectedRoute roles={["organizer", "admin"]}>
-      <Attendance />
-    </ProtectedRoute>
-  }
-/>
+          {/* Sprint 3: Attendance check-in for organizers and admins */}
+          <Route
+            path="/organizer/attendance/:id"
+            element={
+              <ProtectedRoute roles={["organizer", "admin"]}>
+                <Attendance />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/admin"
