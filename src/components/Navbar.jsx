@@ -1,13 +1,10 @@
-
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../store/cart";
 
 const linkClass = ({ isActive }) =>
   `px-3 py-1.5 rounded-md text-sm ${
-    isActive
-      ? "bg-slate-900 text-white"
-      : "text-slate-600 hover:bg-slate-100"
+    isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
   }`;
 
 // Added: Shopping cart SVG icon
@@ -36,19 +33,14 @@ export default function Navbar() {
   const { user, role, signOut } = useAuth();
 
   // Existing: Total quantity of shopping cart items
-  const cartCount = useCart((s) =>
-    s.items.reduce((n, i) => n + i.quantity, 0)
-  );
+  const cartCount = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0));
 
   const navigate = useNavigate();
 
   return (
     <header className="border-b border-slate-200 bg-white">
       <nav className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3">
-        <Link
-          to="/"
-          className="mr-4 text-lg font-bold text-indigo-600"
-        >
+        <Link to="/" className="mr-4 text-lg font-bold text-indigo-600">
           CampusConnect
         </Link>
 
@@ -67,8 +59,15 @@ export default function Navbar() {
         )}
 
         {(role === "organizer" || role === "admin") && (
-          <NavLink to="/organizer" className={linkClass}>
+          <NavLink to="/organizer" end className={linkClass}>
             Event Management
+          </NavLink>
+        )}
+
+        {/* Sprint 3: Registrations and attendance for hosted events */}
+        {(role === "organizer" || role === "admin") && (
+          <NavLink to="/organizer/events" className={linkClass}>
+            Hosted Events
           </NavLink>
         )}
 

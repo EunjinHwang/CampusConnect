@@ -37,25 +37,27 @@ export default function Attendance() {
       if (eventError) throw eventError;
 
       // Client-side check; Supabase must also enforce access.
+      // Only the person who created the event can see its registrations.
       if (eventData.organizer_id !== authData.user.id) {
-        const { data: profile, error: profileError } =
-          await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", authData.user.id)
-            .single();
+        // const { data: profile, error: profileError } =
+        //   await supabase
+        //     .from("profiles")
+        //     .select("role")
+        //     .eq("id", authData.user.id)
+        //     .single();
 
-        if (profileError) throw profileError;
+        // if (profileError) throw profileError;
 
-        if (profile.role !== "admin") {
-          throw new Error("You cannot manage this event.");
-        }
+        // if (profile.role !== "admin") {
+        //   throw new Error("You cannot manage this event.");
+        // }
+        throw new Error("Only this event's organizer can see its registrations.");
       }
 
       const { data, error: registrationError } =
         await supabase
           .from("registrations")
-          .select("id, user_id, status, attended, created_at")
+          .select("id, user_id, status, attended, created_at, profiles(full_name)")
           .eq("event_id", id)
           .order("created_at", { ascending: false });
 
@@ -164,7 +166,7 @@ export default function Attendance() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="p-4">Registration</th>
+                  <th className="p-4">Attendee</th>
                   <th className="p-4">Status</th>
                   <th className="p-4">Attendance</th>
                   <th className="p-4">Action</th>
@@ -174,7 +176,7 @@ export default function Attendance() {
                 {registrations.map((registration) => (
                   <tr key={registration.id} className="border-t">
                     <td className="p-4 font-medium">
-                      {registration.id.slice(0, 8)}...
+                      {registration.profiles?.full_name || "Unnamed attendee"}
                     </td>
                     <td className="p-4">{registration.status}</td>
                     <td className="p-4">
