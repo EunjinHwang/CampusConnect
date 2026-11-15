@@ -35,7 +35,7 @@ function formatPrice(price) {
 export default function EventDetails() {
   const { id } = useParams();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   const [event, setEvent] = useState(null);
   const [organizer, setOrganizer] = useState(null);
@@ -206,6 +206,16 @@ export default function EventDetails() {
               <h2 className="mt-6 text-lg font-bold text-[#10201A]">About this event</h2>
               <p className="mt-2 whitespace-pre-line text-[#3B4A43]">{event.description}</p>
             </>
+          )}
+
+          {(event.organizer_id === user?.id || role === "admin") && (
+            <Link
+              to={`/organizer/attendance/${event.id}`}
+              className="mt-6 inline-block rounded-lg border border-[#0E3B2E] px-4 py-2 text-sm font-semibold text-[#0E3B2E] hover:bg-[#0E3B2E]/5"
+            >
+              View registrations and attendance
+            </Link>
+
           )}
 
           <section className="mt-8 border-t border-slate-200 pt-6" aria-label="Registration">

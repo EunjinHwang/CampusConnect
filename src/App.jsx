@@ -11,6 +11,7 @@ import Placeholder from "./pages/Placeholder";
 import EventManagement from "./pages/EventManagement";
 // Sprint 3: Attendance check-in page
 import Attendance from "./pages/Attendance";
+import OrganizerEvents from "./pages/OrganizerEvents";
 import Store from "./pages/Store";
 import ProductDetails from "./pages/ProductDetails";
 
@@ -67,6 +68,16 @@ export default function App() {
             element={
               <ProtectedRoute roles={["organizer", "admin"]}>
                 <EventManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Sprint 3: Events the organizer hosts, with registration links */}
+          <Route
+            path="/organizer/events"
+            element={
+              <ProtectedRoute roles={["organizer", "admin"]}>
+                <OrganizerEvents />
               </ProtectedRoute>
             }
           />
