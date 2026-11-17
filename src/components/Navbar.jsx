@@ -2,12 +2,14 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../store/cart";
 
+// Theme matches Footer: bg #102A2A, emerald-300 accent, slate-300 text.
 const linkClass = ({ isActive }) =>
-  `px-3 py-1.5 rounded-md text-sm ${
-    isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
+  `whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 ${
+    isActive
+      ? "bg-emerald-300 text-[#102A2A]"
+      : "text-slate-300 hover:bg-white/10 hover:text-emerald-300"
   }`;
 
-// Added: Shopping cart SVG icon
 function CartIcon() {
   return (
     <svg
@@ -32,15 +34,17 @@ function CartIcon() {
 export default function Navbar() {
   const { user, role, signOut } = useAuth();
 
-  // Existing: Total quantity of shopping cart items
   const cartCount = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0));
 
   const navigate = useNavigate();
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <nav className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3">
-        <Link to="/" className="mr-4 text-lg font-bold text-indigo-600">
+    <header className="border-b border-white/10 bg-[#102A2A]">
+      <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-1.5 px-4 py-3">
+        <Link
+          to="/"
+          className="mr-4 rounded-md text-lg font-bold text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+        >
           CampusConnect
         </Link>
 
@@ -78,24 +82,23 @@ export default function Navbar() {
         )}
 
         <div className="ml-auto flex items-center gap-3">
-          {/* Added: Shopping cart icon and quantity badge */}
           <NavLink
             to="/cart"
             aria-label={`Shopping cart, ${cartCount} items`}
             title="Shopping Cart"
             className={({ isActive }) =>
-              `relative flex items-center justify-center rounded-lg p-2 transition-colors ${
+              `relative flex items-center justify-center rounded-full p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 ${
                 isActive
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "text-emerald-900 hover:bg-emerald-50"
+                  ? "bg-emerald-300 text-[#102A2A]"
+                  : "text-slate-300 hover:bg-white/10 hover:text-emerald-300"
               }`
             }
           >
             <CartIcon />
 
-            {/* Show orange badge only when cart has items */}
+            {/* Orange badge only when cart has items */}
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-xs font-bold text-white">
+              <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-xs font-bold text-white ring-2 ring-[#102A2A]">
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
@@ -107,14 +110,14 @@ export default function Navbar() {
                 await signOut();
                 navigate("/");
               }}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50"
+              className="rounded-full border border-white/20 px-4 py-1.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
               Log Out
             </button>
           ) : (
             <Link
               to="/login"
-              className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700"
+              className="rounded-full bg-emerald-300 px-4 py-1.5 text-sm font-semibold text-[#102A2A] transition-colors hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               Log In
             </Link>
