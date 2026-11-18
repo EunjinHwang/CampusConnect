@@ -4,6 +4,13 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { fallbackImageFor } from "../lib/eventImages";
 
+// Added: how far ahead of the event a person can ask to be reminded.
+const REMINDER_OFFSETS = [
+  { minutes: 60, label: "1 hour before" },
+  { minutes: 1440, label: "1 day before" },
+  { minutes: 4320, label: "3 days before" },
+];
+
 function formatDateRange(startsAt, endsAt) {
   const start = new Date(startsAt);
   if (Number.isNaN(start.getTime())) return "Date to be announced";
@@ -32,6 +39,17 @@ function formatPrice(price) {
   return value === 0 ? "Free" : `$${value.toFixed(2)}`;
 }
 
+// Added: e.g. "Tue, Nov 17, 3:00 PM"
+function formatReminderTime(iso) {
+  return new Date(iso).toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export default function EventDetails() {
   const { id } = useParams();
   const location = useLocation();
@@ -47,6 +65,11 @@ export default function EventDetails() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [message, setMessage] = useState(null); // { type: "success" | "error", text }
+
+  // Added: the reminder saved for this registration, if any.
+  const [reminder, setReminder] = useState(null);
+  const [reminderOffset, setReminderOffset] = useState(1440);
+  const [reminderBusy, setReminderBusy] = useState(false);
 
   // Event, its organizer and its tiers. RLS hides drafts from other people.
   useEffect(() => {
@@ -120,6 +143,27 @@ export default function EventDetails() {
     };
   }, [id, user]);
 
+  // Added: load the reminder for this registration (only exists once registered).
+  useEffect(() => {
+    setReminder(null);
+    if (!registration) return;
+    let active = true;
+    supabase
+      .from("event_reminders")
+      .select("id, offset_minutes, remind_at")
+      .eq("registration_id", registration.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) console.error("Could not load reminder:", error.message);
+        setReminder(data ?? null);
+        if (data) setReminderOffset(data.offset_minutes);
+      });
+    return () => {
+      active = false;
+    };
+  }, [registration]);
+
   // Any tier, free or paid. Paid tiers don't charge anything until payments exist.
   async function handleRegister() {
     if (!selectedTierId || busy) return;
@@ -141,6 +185,9 @@ export default function EventDetails() {
     if (!registration || busy) return;
     setBusy(true);
     setMessage(null);
+    // Added: a cancelled registration shouldn't keep a pending reminder.
+    // Registrations are soft-cancelled, so the reminder has to be removed here.
+    await supabase.from("event_reminders").delete().eq("registration_id", registration.id);
     const { error } = await supabase.rpc("cancel_registration", {
       p_registration_id: registration.id,
     });
@@ -150,7 +197,54 @@ export default function EventDetails() {
       return;
     }
     setRegistration(null);
+    setReminder(null);
     setMessage({ type: "success", text: "Your event registration has been cancelled." });
+  }
+
+  // Added: save (or change) the reminder for this registration.
+  async function handleSetReminder(offsetMinutes) {
+    if (!registration || !event || reminderBusy) return;
+    setReminderBusy(true);
+    setMessage(null);
+    const remindAt = new Date(
+      new Date(event.starts_at).getTime() - offsetMinutes * 60 * 1000,
+    ).toISOString();
+    const { data, error } = await supabase
+      .from("event_reminders")
+      .upsert(
+        {
+          registration_id: registration.id,
+          event_id: event.id,
+          user_id: user.id,
+          offset_minutes: offsetMinutes,
+          remind_at: remindAt,
+          sent_at: null,
+        },
+        { onConflict: "registration_id" },
+      )
+      .select("id, offset_minutes, remind_at")
+      .single();
+    setReminderBusy(false);
+    if (error) {
+      setMessage({ type: "error", text: error.message });
+      return;
+    }
+    setReminder(data);
+    setMessage({ type: "success", text: "Reminder saved." });
+  }
+
+  async function handleRemoveReminder() {
+    if (!reminder || reminderBusy) return;
+    setReminderBusy(true);
+    setMessage(null);
+    const { error } = await supabase.from("event_reminders").delete().eq("id", reminder.id);
+    setReminderBusy(false);
+    if (error) {
+      setMessage({ type: "error", text: error.message });
+      return;
+    }
+    setReminder(null);
+    setMessage({ type: "success", text: "Reminder removed." });
   }
 
   if (loading) {
@@ -181,6 +275,15 @@ export default function EventDetails() {
   const isCancelled = event.status === "cancelled";
   const registeredTier = tiers.find((t) => t.id === registration?.tier_id);
   const selectedTier = tiers.find((t) => t.id === selectedTierId);
+
+  // Added: only offer reminder times that are still in the future.
+  const startTime = new Date(event.starts_at).getTime();
+  const availableOffsets = REMINDER_OFFSETS.filter(
+    (o) => startTime - o.minutes * 60 * 1000 > Date.now(),
+  );
+  const chosenOffset = availableOffsets.some((o) => o.minutes === reminderOffset)
+    ? reminderOffset
+    : availableOffsets[0]?.minutes;
 
   return (
     <div className="pb-12">
@@ -229,6 +332,58 @@ export default function EventDetails() {
                     Ticket: {registeredTier.name} ({formatPrice(registeredTier.price)})
                   </p>
                 )}
+
+                {/* Added: reminder options, shown only once registered */}
+                {(reminder || availableOffsets.length > 0) && (
+                  <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <h2 className="text-sm font-bold text-[#10201A]">Event reminder</h2>
+                    {reminder ? (
+                      <div className="mt-2">
+                        <p className="text-sm text-[#3B4A43]">
+                          We'll remind you {REMINDER_OFFSETS.find(
+                            (o) => o.minutes === reminder.offset_minutes,
+                          )?.label.toLowerCase() ?? "before the event"} (
+                          {formatReminderTime(reminder.remind_at)}).
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleRemoveReminder}
+                          disabled={reminderBusy}
+                          className="mt-3 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-white disabled:opacity-50"
+                        >
+                          {reminderBusy ? "Removing..." : "Remove reminder"}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <label htmlFor="reminder-offset" className="sr-only">
+                          When to be reminded
+                        </label>
+                        <select
+                          id="reminder-offset"
+                          value={chosenOffset}
+                          onChange={(e) => setReminderOffset(Number(e.target.value))}
+                          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-[#10201A]"
+                        >
+                          {availableOffsets.map((o) => (
+                            <option key={o.minutes} value={o.minutes}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleSetReminder(chosenOffset)}
+                          disabled={reminderBusy}
+                          className="rounded-lg bg-[#0E3B2E] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#10201A] disabled:opacity-50"
+                        >
+                          {reminderBusy ? "Saving..." : "Remind me"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={handleCancel}
