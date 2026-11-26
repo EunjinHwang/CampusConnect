@@ -1,14 +1,11 @@
-
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../store/cart";
+import { validateCart } from "../lib/checkoutValidation";
 
-// CampusConnect - Sprint 3
-// Subtask: Shopping Cart page
+// CampusConnect - Sprint 3 and Sprint 5
+// Subtasks: Shopping Cart, Validation and Error Handling
 // Author: Omar
-//
-// Displays merchandise added to the cart.
-// Uses the existing Zustand cart store.
-// Does not modify Supabase or process payments.
 
 const productEmoji = (name) => {
   if (name === "CampusConnect Hoodie") return "🧥";
@@ -23,7 +20,14 @@ export default function Cart() {
   const remove = useCart((state) => state.remove);
   const clear = useCart((state) => state.clear);
 
-  // Step 2: Calculate total quantity and subtotal.
+  // Navigate to the checkout page.
+  const navigate = useNavigate();
+
+  // Step 2: Manage cart validation states.
+  const [validating, setValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
+
+  // Step 3: Calculate total quantity and subtotal.
   const totalQuantity = items.reduce(
     (total, item) => total + item.quantity,
     0
@@ -34,6 +38,56 @@ export default function Cart() {
       total + Number(item.price) * item.quantity,
     0
   );
+
+  // Reset validation messages when cart contents change.
+  function resetValidation() {
+    setValidationErrors([]);
+  }
+
+  // Remove a product and reset the validation result.
+  function handleRemove(id) {
+    remove(id);
+    resetValidation();
+  }
+
+  // Clear the cart and reset the validation result.
+  function handleClear() {
+    clear();
+    resetValidation();
+  }
+
+  // Step 4: Validate cart products before checkout.
+  async function handleCheckout() {
+    if (validating) return;
+
+    setValidating(true);
+    resetValidation();
+
+    try {
+      const result = await validateCart(items);
+
+      // Ignore results if cart contents changed during validation.
+      if (useCart.getState().items !== items) {
+        setValidationErrors([
+          "Your cart has changed. Please try again.",
+        ]);
+        return;
+      }
+
+      // Navigate to checkout when validation succeeds.
+      if (result.valid) {
+        navigate("/checkout");
+      } else {
+        setValidationErrors(result.errors);
+      }
+    } catch (error) {
+      setValidationErrors([
+        "Unable to validate your cart. Please try again.",
+      ]);
+    } finally {
+      setValidating(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -46,7 +100,7 @@ export default function Cart() {
         Review your CampusConnect merchandise.
       </p>
 
-      {/* Step 3: Show a message when the cart is empty. */}
+      {/* Step 5: Display the empty cart message. */}
       {items.length === 0 ? (
         <div className="mt-8 rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
           <div className="mb-4 text-6xl">🛒</div>
@@ -69,7 +123,7 @@ export default function Cart() {
         </div>
       ) : (
         <div className="mt-8 space-y-5">
-          {/* Step 4: Display products in the cart. */}
+          {/* Step 6: Display products in the cart. */}
           {items.map((item) => (
             <div
               key={item.id}
@@ -99,8 +153,9 @@ export default function Cart() {
 
                 <button
                   type="button"
-                  onClick={() => remove(item.id)}
-                  className="mt-3 text-sm font-medium text-red-600 hover:underline"
+                  onClick={() => handleRemove(item.id)}
+                  disabled={validating}
+                  className="mt-3 text-sm font-medium text-red-600 hover:underline disabled:opacity-50"
                 >
                   Remove Product
                 </button>
@@ -115,7 +170,7 @@ export default function Cart() {
             </div>
           ))}
 
-          {/* Step 5: Display cart summary. */}
+          {/* Step 7: Display cart summary. */}
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-emerald-950">
               Order Summary
@@ -132,23 +187,53 @@ export default function Cart() {
             </div>
 
             <p className="mt-2 text-sm text-slate-500">
-              Taxes, shipping, and checkout are not yet
-              implemented.
+              Product availability and prices will be
+              verified before checkout.
             </p>
 
-            {/* Step 6: Cart action buttons */}
+            {/* Step 8: Display validation errors. */}
+            {validationErrors.length > 0 && (
+              <div
+                role="alert"
+                className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4"
+              >
+                <h3 className="font-semibold text-red-800">
+                  Cart Validation Failed
+                </h3>
+
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-red-700">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Step 9: Cart action buttons */}
             <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleCheckout}
+                disabled={validating}
+                className="rounded-lg bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                {validating
+                  ? "Validating..."
+                  : "Proceed to Checkout →"}
+              </button>
+
               <Link
                 to="/store"
-                className="rounded-lg bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+                className="rounded-lg border border-emerald-900 px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50"
               >
                 Continue Shopping
               </Link>
 
               <button
                 type="button"
-                onClick={clear}
-                className="rounded-lg border border-red-300 px-5 py-3 text-sm font-semibold text-red-700 hover:bg-red-50"
+                onClick={handleClear}
+                disabled={validating}
+                className="rounded-lg border border-red-300 px-5 py-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
               >
                 Clear Cart
               </button>

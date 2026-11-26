@@ -7,7 +7,7 @@ const linkClass = ({ isActive }) =>
     isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
   }`;
 
-// Added: Shopping cart SVG icon
+// Shopping cart SVG icon
 function CartIcon() {
   return (
     <svg
@@ -32,14 +32,17 @@ function CartIcon() {
 export default function Navbar() {
   const { user, role, signOut } = useAuth();
 
-  // Existing: Total quantity of shopping cart items
-  const cartCount = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0));
+  // Total quantity of shopping cart items
+  const cartCount = useCart((s) =>
+    s.items.reduce((n, i) => n + i.quantity, 0)
+  );
 
   const navigate = useNavigate();
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <nav className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3">
+      <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 py-3">
+
         <Link to="/" className="mr-4 text-lg font-bold text-indigo-600">
           CampusConnect
         </Link>
@@ -58,6 +61,13 @@ export default function Navbar() {
           </NavLink>
         )}
 
+        {/* Sprint 5: Personal merchandise order history */}
+        {user && (
+          <NavLink to="/my-orders" className={linkClass}>
+            My Orders
+          </NavLink>
+        )}
+
         {(role === "organizer" || role === "admin") && (
           <NavLink to="/organizer" end className={linkClass}>
             Event Management
@@ -71,14 +81,16 @@ export default function Navbar() {
           </NavLink>
         )}
 
+        {/* Sprint 5: Central dashboard for administrators */}
         {role === "admin" && (
           <NavLink to="/admin" className={linkClass}>
-            Store Management
+            Admin Dashboard
           </NavLink>
         )}
 
         <div className="ml-auto flex items-center gap-3">
-          {/* Added: Shopping cart icon and quantity badge */}
+
+          {/* Shopping cart icon and quantity badge */}
           <NavLink
             to="/cart"
             aria-label={`Shopping cart, ${cartCount} items`}

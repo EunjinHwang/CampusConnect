@@ -1,0 +1,512 @@
+/* CampusConnect - Sprint 5 */
+/* Checkout layout and animated payment card */
+
+.checkout-page {
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+/* Checkout heading */
+.checkout-heading {
+  margin: 24px 0;
+}
+
+.checkout-heading h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0e3b2e;
+}
+
+.checkout-heading p {
+  margin-top: 8px;
+  color: #64748b;
+}
+
+/* Payment and order summary layout */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.checkout-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-panel h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0e3b2e;
+}
+
+/* Demonstration payment notice */
+.demo-notice {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+/* Payment card perspective */
+.payment-card-container {
+  width: 100%;
+  max-width: 390px;
+  aspect-ratio: 1.6;
+  margin: 30px auto;
+  perspective: 1200px;
+}
+
+/* Smooth 3D card rotation */
+.payment-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease-in-out;
+}
+
+.payment-card.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Shared front and back card design */
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 24px;
+  color: white;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(14, 59, 46, 0.25);
+  background: linear-gradient(
+    135deg,
+    #287d65,
+    #0e3b2e 60%,
+    #071f18
+  );
+}
+
+/* Decorative card background */
+.card-front::before {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border: 35px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  right: -100px;
+  bottom: -130px;
+  pointer-events: none;
+}
+
+.card-brand {
+  text-align: right;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Payment card chip */
+.card-chip {
+  width: 48px;
+  height: 36px;
+  margin-top: 8px;
+  border-radius: 7px;
+  border: 1px solid #c9ad65;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 30%,
+      #a89563 31%,
+      transparent 34%,
+      transparent 65%,
+      #a89563 66%,
+      transparent 69%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 30%,
+      #a89563 31%,
+      transparent 34%,
+      transparent 65%,
+      #a89563 66%,
+      transparent 69%
+    ),
+    linear-gradient(135deg, #f4e4b3, #b9a16a);
+}
+
+/* Live card number */
+.card-number {
+  margin-top: 22px;
+  font-family: monospace;
+  font-size: clamp(16px, 2.3vw, 24px);
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+/* Cardholder name and expiration */
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+  padding-right: 30px;
+}
+
+.card-bottom > div {
+  min-width: 0;
+}
+
+.card-bottom small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #cdebd8;
+  margin-bottom: 4px;
+}
+
+.card-bottom div div {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card payment brand */
+.card-visa {
+  position: absolute;
+  bottom: 14px;
+  right: 22px;
+  font-size: 23px;
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* Back of the payment card */
+.card-back {
+  transform: rotateY(180deg);
+  padding: 0;
+}
+
+.magnetic-strip {
+  height: 48px;
+  margin-top: 30px;
+  background: #111827;
+}
+
+.signature-label {
+  margin: 16px 24px 5px;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.signature-strip {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 36px;
+  margin: 0 24px;
+  padding: 0 12px;
+  border-radius: 4px;
+  color: #111827;
+  background: repeating-linear-gradient(
+    0deg,
+    #ffffff,
+    #ffffff 4px,
+    #e2e8f0 5px
+  );
+}
+
+.signature-strip span {
+  background: white;
+  padding: 4px 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.card-back-text {
+  margin: 18px 24px;
+  font-size: 11px;
+  color: #cdebd8;
+}
+
+/* Payment form fields */
+.payment-form fieldset {
+  border: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.payment-form label {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.payment-form input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.payment-form input:focus {
+  border-color: #287d65;
+  box-shadow: 0 0 0 3px rgba(40, 125, 101, 0.12);
+}
+
+.payment-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* Payment validation errors */
+.payment-errors {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.payment-errors ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-top: 8px;
+}
+
+.payment-errors li {
+  margin-top: 5px;
+}
+
+/* Payment and navigation buttons */
+.checkout-button {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #0e3b2e;
+  color: white;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.checkout-button:hover {
+  background: #287d65;
+  transform: translateY(-1px);
+}
+
+.checkout-button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Order summary */
+.order-summary {
+  position: sticky;
+  top: 24px;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #0e3b2e;
+}
+
+.checkout-item p {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0e3b2e;
+}
+
+.payment-security {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #e8f5ed;
+  color: #0e3b2e;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Payment success screen */
+.checkout-success {
+  max-width: 550px;
+  margin: 50px auto;
+  padding: 45px 30px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+  animation: successFadeIn 0.6s ease-out;
+}
+
+.success-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 25px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  font-size: 55px;
+  box-shadow: 0 0 0 12px #dcfce7;
+  animation: successPop 0.6s ease-out;
+}
+
+.checkout-success h1 {
+  margin-top: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0e3b2e;
+}
+
+.checkout-success p {
+  margin-top: 12px;
+  color: #64748b;
+}
+
+.success-amount {
+  margin: 24px 0;
+  font-size: 38px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+/* Success animations */
+@keyframes successPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes successFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive tablet and mobile layout */
+@media (max-width: 768px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-summary {
+    position: static;
+  }
+
+  .checkout-panel {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-face {
+    padding: 16px;
+  }
+
+  .card-back {
+    padding: 0;
+  }
+
+  .card-brand {
+    font-size: 14px;
+  }
+
+  .card-number {
+    font-size: 16px;
+    letter-spacing: 1px;
+    margin-top: 14px;
+  }
+
+  .card-chip {
+    width: 38px;
+    height: 28px;
+  }
+
+  .card-bottom {
+    margin-top: 12px;
+  }
+
+  .card-visa {
+    font-size: 18px;
+    bottom: 10px;
+    right: 16px;
+  }
+
+  .checkout-heading h1 {
+    font-size: 26px;
+  }
+}
+
+/* Respect reduced motion accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  .payment-card,
+  .checkout-button {
+    transition: none;
+  }
+
+  .checkout-success,
+  .success-circle {
+    animation: none;
+  }
+}
